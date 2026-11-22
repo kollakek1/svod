@@ -1,7 +1,7 @@
-﻿/**
- * РЎРѕС‚СЂСѓРґРЅРёРєРё Рё РёС… РіР°СЂРґС‹: bootstrap РІР»Р°РґРµР»СЊС†Р° РёР· env, Р·Р°РЅСЏС‚РѕСЃС‚СЊ email,
- * В«РЅРµР»СЊР·СЏ РѕСЃС‚Р°С‚СЊСЃСЏ Р±РµР· ownerВ» Рё В«РЅРµР»СЊР·СЏ РґРµР°РєС‚РёРІРёСЂРѕРІР°С‚СЊ СЃРµР±СЏВ».
- * Р¤Р°Р№Р»РѕРІС‹Р№ РґСЂР°Р№РІРµСЂ РІРѕ РІСЂРµРјРµРЅРЅРѕР№ РїР°РїРєРµ, Р±РµР· СЃРµС‚Рё.
+/**
+ * Сотрудники и их гарды: bootstrap владельца из env, занятость email,
+ * «нельзя остаться без owner» и «нельзя деактивировать себя».
+ * Файловый драйвер во временной папке, без сети.
  */
 
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
@@ -57,25 +57,25 @@ async function bootstrapOwner() {
   const result = await ensureAdmins();
   if (!result.ok) throw new Error(result.message);
   const owner = result.users.find((user) => user.role === "owner");
-  if (!owner) throw new Error("РІР»Р°РґРµР»РµС† РЅРµ СЃРѕР·РґР°РЅ");
+  if (!owner) throw new Error("владелец не создан");
   return owner;
 }
 
 describe("bootstrap", () => {
-  it("СЃРѕР·РґР°С‘С‚ РІР»Р°РґРµР»СЊС†Р° РёР· env РѕРґРёРЅ СЂР°Р· Рё РїСЂРѕРІРµСЂСЏРµС‚ РµРіРѕ РїР°СЂРѕР»СЊ", async () => {
+  it("создаёт владельца из env один раз и проверяет его пароль", async () => {
     const owner = await bootstrapOwner();
 
     expect(owner.email).toBe(EMAIL);
     expect(owner.role).toBe("owner");
     expect(owner.active).toBe(true);
     expect(await verifyPassword(PASSWORD, owner)).toBe(true);
-    expect(await verifyPassword("С‡СѓР¶РѕР№-РїР°СЂРѕР»СЊ", owner)).toBe(false);
+    expect(await verifyPassword("чужой-пароль", owner)).toBe(false);
 
     const again = await ensureAdmins();
     expect(again.ok && again.users).toHaveLength(1);
   });
 
-  it("РЅРµ РѕС‚РґР°С‘С‚ РЅР°СЂСѓР¶Сѓ С…СЌС€Рё Рё СЃРѕР»СЊ", async () => {
+  it("не отдаёт наружу хэши и соль", async () => {
     await bootstrapOwner();
     const users = await listAdminUsers();
     const serialized = JSON.stringify(users);
@@ -86,13 +86,13 @@ describe("bootstrap", () => {
   });
 });
 
-describe("СЃРѕР·РґР°РЅРёРµ Рё РїСЂР°РІРєР°", () => {
-  it("Р·Р°РЅРёРјР°РµС‚ email Рё РЅРµ РґР°С‘С‚ СЃРѕР·РґР°С‚СЊ РґСѓР±Р»СЊ", async () => {
+describe("создание и правка", () => {
+  it("занимает email и не даёт создать дубль", async () => {
     await bootstrapOwner();
 
     const created = await createAdmin({
       email: "manager@svod.dental",
-      name: "РњР°СЂРёРЅР°",
+      name: "Марина",
       role: "manager",
       password: "manager-pass-2026",
       createdBy: null,
@@ -101,7 +101,7 @@ describe("СЃРѕР·РґР°РЅРёРµ Рё РїСЂР°РІРєР°", () =>
 
     const duplicate = await createAdmin({
       email: "MANAGER@svod.dental",
-      name: "Р”СЂСѓРіРѕР№",
+      name: "Другой",
       role: "manager",
       password: "manager-pass-2026",
       createdBy: null,
@@ -109,46 +109,46 @@ describe("СЃРѕР·РґР°РЅРёРµ Рё РїСЂР°РІРєР°", () =>
     expect(duplicate).toMatchObject({ ok: false, reason: "email_taken" });
   });
 
-  it("РЅРµ РґР°С‘С‚ РґРµР°РєС‚РёРІРёСЂРѕРІР°С‚СЊ СЃРµР±СЏ", async () => {
+  it("не даёт деактивировать себя", async () => {
     const owner = await bootstrapOwner();
     const result = await deactivateAdmin(owner.id, owner.id);
     expect(result).toMatchObject({ ok: false, reason: "self_deactivate" });
   });
 
-  it("РЅРµ РѕСЃС‚Р°РІР»СЏРµС‚ РєР»РёРЅРёРєСѓ Р±РµР· Р°РєС‚РёРІРЅРѕРіРѕ РІР»Р°РґРµР»СЊС†Р°", async () => {
+  it("не оставляет клинику без активного владельца", async () => {
     const owner = await bootstrapOwner();
 
-    const demote = await updateAdmin(owner.id, { role: "manager" }, "adm-РєС‚Рѕ-С‚Рѕ");
+    const demote = await updateAdmin(owner.id, { role: "manager" }, "adm-кто-то");
     expect(demote).toMatchObject({ ok: false, reason: "last_owner" });
 
     const second = await createAdmin({
       email: "owner2@svod.dental",
-      name: "Р’С‚РѕСЂРѕР№",
+      name: "Второй",
       role: "owner",
       password: "second-pass-2026",
       createdBy: owner.id,
     });
-    if (!second.ok) throw new Error("РІС‚РѕСЂРѕР№ РІР»Р°РґРµР»РµС† РЅРµ СЃРѕР·РґР°РЅ");
+    if (!second.ok) throw new Error("второй владелец не создан");
 
-    // Р’Р»Р°РґРµР»СЊС†РµРІ РґРІРѕРµ вЂ” РїРѕРЅРёР·РёС‚СЊ РѕРґРЅРѕРіРѕ РјРѕР¶РЅРѕ.
+    // Владельцев двое — понизить одного можно.
     const demoted = await updateAdmin(owner.id, { role: "manager" }, second.value.id);
     expect(demoted.ok).toBe(true);
 
-    // РќРѕ РїРѕСЃР»РµРґРЅРµРіРѕ вЂ” СѓР¶Рµ РЅРµС‚.
+    // Но последнего — уже нет.
     const blocked = await updateAdmin(second.value.id, { active: false }, owner.id);
     expect(blocked).toMatchObject({ ok: false, reason: "last_owner" });
   });
 
-  it("РґРµР°РєС‚РёРІРёСЂСѓРµС‚ СЃРѕС‚СЂСѓРґРЅРёРєР° Рё РѕС‚Р·С‹РІР°РµС‚ Р·Р°РїРёСЃСЊ", async () => {
+  it("деактивирует сотрудника и отзывает запись", async () => {
     const owner = await bootstrapOwner();
     const created = await createAdmin({
       email: "manager@svod.dental",
-      name: "РњР°СЂРёРЅР°",
+      name: "Марина",
       role: "manager",
       password: "manager-pass-2026",
       createdBy: owner.id,
     });
-    if (!created.ok) throw new Error("СЃРѕС‚СЂСѓРґРЅРёРє РЅРµ СЃРѕР·РґР°РЅ");
+    if (!created.ok) throw new Error("сотрудник не создан");
 
     const deactivated = await deactivateAdmin(created.value.id, owner.id);
     expect(deactivated.ok && deactivated.value.active).toBe(false);
@@ -158,31 +158,31 @@ describe("СЃРѕР·РґР°РЅРёРµ Рё РїСЂР°РІРєР°", () =>
   });
 });
 
-describe("СЃРјРµРЅР° РїР°СЂРѕР»СЏ", () => {
-  it("С‚СЂРµР±СѓРµС‚ С‚РµРєСѓС‰РёР№ РїР°СЂРѕР»СЊ Рё Р·Р°С‚РµРј РїСЂРёРЅРёРјР°РµС‚ РЅРѕРІС‹Р№", async () => {
+describe("смена пароля", () => {
+  it("требует текущий пароль и затем принимает новый", async () => {
     const owner = await bootstrapOwner();
 
     const wrong = await changeAdminPassword(owner.id, {
-      newPassword: "РЅРѕРІС‹Р№-РїР°СЂРѕР»СЊ-2026",
-      currentPassword: "РЅРµРІРµСЂРЅС‹Р№",
+      newPassword: "новый-пароль-2026",
+      currentPassword: "неверный",
       requireCurrent: true,
     });
     expect(wrong).toMatchObject({ ok: false, reason: "invalid_password" });
 
     const changed = await changeAdminPassword(owner.id, {
-      newPassword: "РЅРѕРІС‹Р№-РїР°СЂРѕР»СЊ-2026",
+      newPassword: "новый-пароль-2026",
       currentPassword: PASSWORD,
       requireCurrent: true,
     });
     expect(changed.ok).toBe(true);
 
     const stored = await findAdminById(owner.id);
-    expect(stored && (await verifyPassword("РЅРѕРІС‹Р№-РїР°СЂРѕР»СЊ-2026", stored))).toBe(true);
+    expect(stored && (await verifyPassword("новый-пароль-2026", stored))).toBe(true);
     expect(stored && (await verifyPassword(PASSWORD, stored))).toBe(false);
   });
 
-  it("РїСЂРѕРІРµСЂСЏРµС‚ РјРёРЅРёРјР°Р»СЊРЅСѓСЋ РґР»РёРЅСѓ", async () => {
-    expect(isValidPassword("РєРѕСЂРѕС‚РєРёР№")).toBe(false);
+  it("проверяет минимальную длину", async () => {
+    expect(isValidPassword("короткий")).toBe(false);
     expect(isValidPassword(PASSWORD)).toBe(true);
 
     const owner = await bootstrapOwner();
