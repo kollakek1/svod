@@ -1,0 +1,35 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# production
+/build
+
+# local data & secrets
+.env
+.env.local
+.env*.local
+/data/*.json
+/data/*.log
+# файловое хранилище разработки (каталог, брони, сотрудники)
+/.data/
+
+# артефакты агентов и проверок
+.artifacts/
+.artifacts-cookies.txt
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+.vscode/*
+!.vscode/extensions.json
+.vercel

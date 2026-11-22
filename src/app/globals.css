@@ -1,0 +1,531 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   СВОД / Фарфор и графит
+   Один фон (кость), одна поверхность (фарфор), один акцент
+   (глубокий зелёный). Всё остальное — производные.
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  /* 1. Сырая палитра — только здесь */
+  --color-ink: #14160f;
+  --color-ink-2: #1c1f17;
+  --color-ink-3: #262a20;
+  --color-bone: #f2eee4;
+  --color-porcelain: #fbf8f1;
+  --color-clay: #e7e0d2;
+  --color-sage: #dee3d8;
+  --color-green: #1e5b49;
+  --color-green-hover: #256b56;
+  --color-green-press: #174738;
+  --color-green-deep: #143f33;
+  --color-muted: #5f6155;
+  --color-muted-dark: #9b9d8e;
+
+  /* 2. Семантика — светлая тема по умолчанию */
+  --color-bg: var(--color-bone);
+  --color-surface: var(--color-porcelain);
+  --color-surface-2: var(--color-clay);
+  --color-text: var(--color-ink);
+  --color-text-muted: var(--color-muted);
+  --color-text-disabled: rgb(20 22 15 / 0.36);
+  --color-accent: var(--color-green);
+  --color-accent-hover: var(--color-green-hover);
+  --color-accent-press: var(--color-green-press);
+  --color-accent-text: var(--color-green-deep);
+  --color-on-accent: #f8f4ea;
+  --color-focus: var(--color-green);
+  --color-line: rgb(20 22 15 / 0.14);
+  --color-line-strong: rgb(20 22 15 / 0.3);
+  --color-control-border: rgb(20 22 15 / 0.45);
+  --color-danger: #8c2f22;
+
+  /* 3. Типографика — флюидная шкала */
+  --font-display: var(--font-spectral);
+  --font-sans: var(--font-golos);
+  --font-mono: var(--font-jetbrains);
+
+  --text-display: clamp(2.35rem, 6.4vw, 6.4rem);
+  --text-display--line-height: 0.93;
+  --text-display--letter-spacing: -0.03em;
+
+  --text-h1: clamp(2.15rem, 4.9vw, 4.2rem);
+  --text-h1--line-height: 0.98;
+  --text-h1--letter-spacing: -0.025em;
+
+  --text-h2: clamp(1.75rem, 3.3vw, 2.9rem);
+  --text-h2--line-height: 1.02;
+  --text-h2--letter-spacing: -0.02em;
+
+  --text-h3: clamp(1.15rem, 1.6vw, 1.45rem);
+  --text-h3--line-height: 1.18;
+  --text-h3--letter-spacing: -0.01em;
+
+  --text-lead: clamp(1.0625rem, 1.35vw, 1.3125rem);
+  --text-lead--line-height: 1.5;
+
+  --text-body: clamp(0.9875rem, 1.05vw, 1.0625rem);
+  --text-body--line-height: 1.62;
+
+  --text-small: 0.8125rem;
+  --text-small--line-height: 1.5;
+
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.2;
+  --text-micro--letter-spacing: 0.16em;
+
+  --text-quote: clamp(1.4rem, 2.2vw, 2.1rem);
+  --text-quote--line-height: 1.28;
+  --text-quote--letter-spacing: 0.002em;
+
+  --text-price: 1.125rem;
+  --text-price--line-height: 1.2;
+
+  /* 4. Ритм */
+  --spacing-section: clamp(88px, 11vw, 176px);
+  --spacing-section-sm: clamp(56px, 7vw, 104px);
+  --spacing-gutter: clamp(20px, 5vw, 72px);
+  --spacing-stack: clamp(28px, 3.6vw, 52px);
+  --spacing-hair: 1px;
+
+  /* 5. Радиусы */
+  --radius-card: 2px;
+  --radius-field: 2px;
+  --radius-pill: 999px;
+
+  /* 6. Контейнеры и меры */
+  --container-page: 90rem;
+  --container-measure: 33rem;
+  --container-form: 40rem;
+  --container-note: 21rem;
+
+  /* 7. Брейкпоинты */
+  --breakpoint-xs: 22.5rem;
+  --breakpoint-3xl: 120rem;
+
+  /* 8. Движение */
+  --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-brand-in: cubic-bezier(0.64, 0, 0.78, 0);
+  --animate-marquee: marquee 56s linear infinite;
+  --animate-accordion-down: accordion-down 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-accordion-up: accordion-up 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+/* Тёмная тема для отдельных секций (клиника, футер) */
+[data-theme="ink"] {
+  --color-bg: var(--color-ink);
+  --color-surface: var(--color-ink-2);
+  --color-surface-2: var(--color-ink-3);
+  --color-text: #f4f0e6;
+  --color-text-muted: var(--color-muted-dark);
+  --color-text-disabled: rgb(244 240 230 / 0.34);
+  --color-accent-text: #96c4ae;
+  --color-focus: #a9cfbb;
+  --color-line: rgb(244 240 230 / 0.15);
+  --color-line-strong: rgb(244 240 230 / 0.3);
+  --color-control-border: rgb(244 240 230 / 0.44);
+  --color-danger: #e2a396;
+}
+
+@layer base {
+  :root {
+    --z-base: 0;
+    --z-raised: 5;
+    --z-sticky: 20;
+    --z-header: 50;
+    --z-grain: 60;
+    --z-overlay: 80;
+    --z-toast: 90;
+
+    --dur-micro: 140ms;
+    --dur-base: 240ms;
+    --dur-large: 420ms;
+    --dur-reveal: 700ms;
+
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: rgb(30 91 73 / 0.12);
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  [id] {
+    scroll-margin-top: 88px;
+  }
+
+  ::selection {
+    background: var(--color-green);
+    color: var(--color-on-accent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+    border-radius: 1px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    text-wrap: balance;
+    hyphens: none;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+/* ─── Общие классы ───────────────────────────────────────────────────────── */
+
+@layer components {
+  .container-page {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--container-page);
+    padding-inline: var(--spacing-gutter);
+  }
+
+  .grid-12 {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: clamp(14px, 1.7vw, 24px);
+    row-gap: clamp(14px, 1.7vw, 24px);
+  }
+
+  @media (min-width: 48rem) {
+    .grid-12 {
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .grid-12 {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+  }
+
+  /* Чертёжная сетка: тонкие линии, не деколь */
+  .blueprint {
+    background-image:
+      linear-gradient(to right, var(--color-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-line) 1px, transparent 1px);
+    background-size: clamp(64px, 6vw, 96px) clamp(64px, 6vw, 96px);
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 20%, transparent 75%);
+    pointer-events: none;
+  }
+
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-grain);
+    background-image: var(--grain);
+    background-size: 160px 160px;
+    opacity: 0.035;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+  }
+
+  [data-theme="ink"] .grain,
+  .grain--light {
+    mix-blend-mode: screen;
+    opacity: 0.03;
+  }
+
+  .hair-t {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .hair-b {
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .arch {
+    border-radius: 999px 999px var(--radius-card) var(--radius-card);
+  }
+
+  .arch-soft {
+    border-radius: 999px 999px 0 0;
+  }
+
+  .measure {
+    max-width: var(--container-measure);
+  }
+
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mono-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    line-height: 1.1;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  /* Числа: метка + значение без капса, с табличными цифрами */
+  .mono-num {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    text-transform: none;
+    font-weight: 400;
+  }
+
+  .display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
+  .quote {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 300;
+    font-size: var(--text-quote);
+    line-height: 1.28;
+  }
+
+  .link-underline {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--color-line-strong);
+    transition: text-decoration-color var(--dur-base) var(--ease-brand);
+  }
+
+  .link-underline:hover {
+    text-decoration-color: var(--color-accent-text);
+  }
+
+  .skip-link {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    z-index: 200;
+    transform: translateY(-160%);
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-line-strong);
+    padding: 12px 20px;
+    font-size: var(--text-small);
+    transition: transform var(--dur-base) var(--ease-brand);
+  }
+
+  .skip-link:focus-visible {
+    transform: translateY(0);
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Появление по скроллу: управляется из Reveal.tsx */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity var(--dur-reveal) var(--ease-brand),
+      transform var(--dur-reveal) var(--ease-brand);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  .reveal[data-visible="true"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Первый экран: анимация без JS, чтобы текст не пропадал до гидратации */
+  .enter {
+    animation: enter 700ms var(--ease-brand) both;
+    animation-delay: var(--enter-delay, 0ms);
+  }
+
+  /* Анимация штриха для схем и чертежей */
+  .draw-stroke {
+    stroke-dasharray: var(--stroke-len, 1200);
+    stroke-dashoffset: var(--stroke-len, 1200);
+    transition: stroke-dashoffset 1.6s var(--ease-brand);
+  }
+
+  .draw-stroke[data-visible="true"] {
+    stroke-dashoffset: 0;
+  }
+
+  /* Схема зубных дуг: чертёж, а не иллюстрация */
+  .tooth-shape {
+    fill: color-mix(in oklab, var(--color-surface-2) 62%, transparent);
+    stroke: var(--color-line-strong);
+    stroke-width: 1;
+    transition:
+      fill var(--dur-base) var(--ease-brand),
+      stroke var(--dur-base) var(--ease-brand);
+  }
+
+  .tooth-shape:hover {
+    fill: color-mix(in oklab, var(--color-accent) 16%, transparent);
+    stroke: var(--color-accent);
+  }
+
+  .tooth-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.03em;
+    fill: var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  .tooth-note {
+    font-family: var(--font-mono);
+    font-size: 7.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    fill: var(--color-text-muted);
+    opacity: 0.8;
+  }
+
+  .tooth-dim {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    fill: var(--color-text-muted);
+  }
+
+  /* На узком экране номера нечитаемы — остаётся чистая схема дуг */
+  @media (max-width: 47.99rem) {
+    .tooth-label,
+    .tooth-note {
+      display: none;
+    }
+  }
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ─── Reduced motion: контент остаётся, движение исчезает ─────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .draw-stroke {
+    stroke-dashoffset: 0;
+  }
+}
